@@ -1,6 +1,7 @@
 package com.example.project3
 
 import android.content.ContentValues
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -39,6 +40,8 @@ class RegisterUserActivity : AppCompatActivity() {
                             .addOnCompleteListener {
                                 if(it.isSuccessful){
                                     Toast.makeText(this, "User added to database", Toast.LENGTH_SHORT).show()
+                                    val intent=Intent(this,HomeActivity::class.java)
+                                    startActivity(intent)
                                 }
                             }.addOnFailureListener {
                                 Toast.makeText(this, "User not added to database", Toast.LENGTH_SHORT).show()
@@ -51,6 +54,12 @@ class RegisterUserActivity : AppCompatActivity() {
                 }
             }
         }
+        binding.loginButton.setOnClickListener {
+            val intent= Intent(this,LoginUserActivity::class.java)
+            startActivity(intent)
+
+        }
+
     }
     private fun getInputValues(){
         name=binding.edtName.text.toString()
