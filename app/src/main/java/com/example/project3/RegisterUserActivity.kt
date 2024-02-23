@@ -36,7 +36,7 @@ class RegisterUserActivity : AppCompatActivity() {
                             firebaseAuth.uid.toString(),name,phoneNo,gender,email,password,regNo
                         )
                         firestore.collection("USERS")
-                            .document(newStudent.id).set(newStudent)
+                            .document(newStudent.regNo).set(newStudent)
                             .addOnCompleteListener {
                                 if(it.isSuccessful){
                                     Toast.makeText(this, "User added to database", Toast.LENGTH_SHORT).show()

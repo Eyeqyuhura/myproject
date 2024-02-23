@@ -13,6 +13,24 @@
         android:theme="@style/Theme.AppCompat"
         tools:targetApi="31">
         <activity
+            android:name=".VotingSesionsDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".VotingSessionActivity"
+            android:exported="false" />
+        <activity
+            android:name=".StudentValidationListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminCoursesListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AddAdminActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdminActivity"
+            android:exported="false" />
+        <activity
             android:name=".RegisterUserActivity"
             android:exported="true"
             android:theme="@style/Theme.AppCompat">
@@ -29,9 +47,7 @@
         <activity
             android:name=".HomeActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat">
-
-        </activity>
+            android:theme="@style/Theme.AppCompat" />
     </application>
 
 </manifest>
