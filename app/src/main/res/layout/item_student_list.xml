@@ -6,7 +6,7 @@
     android:layout_height="180dp">
 
     <TextView
-        android:id="@+id/textView15"
+        android:id="@+id/studentNameTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
@@ -16,16 +16,16 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView16"
+        android:id="@+id/studentRegNoTv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:text="Student RegNo"
-        app:layout_constraintStart_toStartOf="@+id/textView15"
-        app:layout_constraintTop_toBottomOf="@+id/textView15" />
+        app:layout_constraintStart_toStartOf="@+id/studentNameTv"
+        app:layout_constraintTop_toBottomOf="@+id/studentNameTv" />
 
     <Button
-        android:id="@+id/button3"
+        android:id="@+id/acceptBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
@@ -35,12 +35,12 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button4"
+        android:id="@+id/rejectBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="30dp"
         android:text="Reject"
-        app:layout_constraintBottom_toBottomOf="@+id/button3"
-        app:layout_constraintStart_toEndOf="@+id/button3" />
+        app:layout_constraintBottom_toBottomOf="@+id/acceptBtn"
+        app:layout_constraintStart_toEndOf="@+id/acceptBtn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

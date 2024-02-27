@@ -112,10 +112,11 @@
         android:id="@+id/textView10"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="10dp"
         android:text="Create Password"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtRegNo" />
+        app:layout_constraintTop_toBottomOf="@+id/courseSpinner" />
 
     <EditText
         android:id="@+id/edtPassword"
@@ -176,6 +177,22 @@
       />
 
     </RadioGroup>
+
+    <TextView
+        android:id="@+id/textView30"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="Course"
+        app:layout_constraintStart_toStartOf="@+id/edtRegNo"
+        app:layout_constraintTop_toBottomOf="@+id/edtRegNo" />
+
+    <Spinner
+        android:id="@+id/courseSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@+id/textView30"
+        app:layout_constraintTop_toTopOf="@+id/textView30" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,9 +1,14 @@
 package com.example.project3
 
+import android.R
 import android.content.ContentValues
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.project3.databinding.StudentRegistrationBinding
@@ -20,12 +25,19 @@ class RegisterUserActivity : AppCompatActivity() {
     private lateinit var email:String
     private lateinit var password:String
     private lateinit var confirmPassword:String
+    private lateinit var selectedCourse:String
+    private lateinit var selectedCourseId:String
+    private var courseList= ArrayList<Course>()
     private val firestore = FirebaseFirestore.getInstance()
+    private lateinit var courseSpinner: Spinner
+    private val adapterValues=ArrayList<String>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=StudentRegistrationBinding.inflate(layoutInflater)
         setContentView(binding.root)
         firebaseAuth=FirebaseAuth.getInstance()
+        setupSpinner()
+
         binding.registerButton.setOnClickListener {
             Toast.makeText(this, "check", Toast.LENGTH_SHORT).show()
             if(validation()) {
@@ -33,8 +45,7 @@ class RegisterUserActivity : AppCompatActivity() {
                     if (it.isSuccessful) {
                         Toast.makeText(this, "Successfully added user", Toast.LENGTH_SHORT).show()
                         val newStudent = Student(
-                            firebaseAuth.uid.toString(),name,phoneNo,gender,email,password,regNo
-                        )
+                            firebaseAuth.uid.toString(),name,phoneNo,gender,email,password,regNo,false,"pending",selectedCourseId)
                         firestore.collection("USERS")
                             .document(newStudent.regNo).set(newStudent)
                             .addOnCompleteListener {
@@ -43,10 +54,13 @@ class RegisterUserActivity : AppCompatActivity() {
                                     val intent=Intent(this,HomeActivity::class.java)
                                     startActivity(intent)
                                 }
-                            }.addOnFailureListener {
+                            }
+                            .addOnFailureListener {
                                 Toast.makeText(this, "User not added to database", Toast.LENGTH_SHORT).show()
                                 Log.w(ContentValues.TAG, "Error adding document", it)
                             }
+                        firestore.collection("VALUSER")
+                            .document(newStudent.regNo).set(newStudent)
 
                     } else {
                         Toast.makeText(this, it.exception.toString(), Toast.LENGTH_SHORT).show()
@@ -61,6 +75,35 @@ class RegisterUserActivity : AppCompatActivity() {
         }
 
     }
+    private fun setupSpinner(){
+        courseSpinner=binding.courseSpinner
+        val adapter= ArrayAdapter(this, R.layout.simple_spinner_item, adapterValues)
+        adapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+        firestore.collection("courses").get()
+            .addOnSuccessListener { result ->
+                for (document in result) {
+                    val data = document.data
+                    val elem=Course(document.id,data["levelId"] as String,data["courseTitle"] as String)
+                    adapterValues.add(data["courseTitle"] as String)
+                    courseList.add(elem)
+                }
+                courseSpinner.adapter=adapter
+            }
+            .addOnFailureListener { exception ->
+                val TAG="course get error"
+                Log.w(TAG, "Error getting documents.", exception)
+            }
+
+        courseSpinner.onItemSelectedListener=object: AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                selectedCourse= courseSpinner.selectedItem as String
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+        }
+
+
+    }
     private fun getInputValues(){
         name=binding.edtName.text.toString()
         phoneNo=binding.edtPhoneNo.text.toString()
@@ -73,6 +116,7 @@ class RegisterUserActivity : AppCompatActivity() {
         email=binding.edtEmail.text.toString()
         password=binding.edtPassword.text.toString()
         confirmPassword=binding.edtConfirmPassword.text.toString()
+        selectedCourseId=courseList.find { it.courseTitle==selectedCourse }?.id?:"7"
     }
 
     private fun validation():Boolean{
