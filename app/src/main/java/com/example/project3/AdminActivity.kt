@@ -20,7 +20,7 @@ class AdminActivity : AppCompatActivity() {
             startActivity(intent)
         }
         binding.manageVotingSessBtn.setOnClickListener {
-            val intent= Intent(this,VotingSessionActivity::class.java)
+            val intent= Intent(this,ManagaVotingSessionActivity::class.java)
             startActivity(intent)
         }
     }

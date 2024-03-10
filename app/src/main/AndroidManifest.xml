@@ -13,10 +13,19 @@
         android:theme="@style/Theme.AppCompat"
         tools:targetApi="31">
         <activity
-            android:name=".VotingSesionsDetailsActivity"
+            android:name=".VotingResultActivity"
             android:exported="false" />
         <activity
-            android:name=".VotingSessionActivity"
+            android:name=".VotingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".VotingSessionsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ManageVotingSesionsDetailsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ManagaVotingSessionActivity"
             android:exported="false" />
         <activity
             android:name=".StudentValidationListActivity"
@@ -33,10 +42,7 @@
         <activity
             android:name=".RegisterUserActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat">
-
-
-        </activity>
+            android:theme="@style/Theme.AppCompat" />
         <activity
             android:name=".LoginUserActivity"
             android:exported="true"
@@ -44,13 +50,12 @@
         <activity
             android:name=".HomeActivity"
             android:exported="true"
-            android:theme="@style/Theme.AppCompat" >
+            android:theme="@style/Theme.AppCompat">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
     </application>
 

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="200dp">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/sessionCard2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+
+        <TextView
+            android:id="@+id/sessionTitleTv2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="30dp"
+            android:text="Title"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/sessionLevelTv2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Level"
+            app:layout_constraintStart_toStartOf="@+id/sessionTitleTv2"
+            app:layout_constraintTop_toBottomOf="@+id/sessionTitleTv2" />
+
+        <TextView
+            android:id="@+id/sessionSchedualTv2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Schedual"
+            app:layout_constraintStart_toStartOf="@+id/sessionLevelTv2"
+            app:layout_constraintTop_toBottomOf="@+id/sessionLevelTv2" />
+
+        <Button
+            android:id="@+id/toVoteBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="30dp"
+            android:text="vote"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/toResultBtn" />
+
+        <Button
+            android:id="@+id/toResultBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="results"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

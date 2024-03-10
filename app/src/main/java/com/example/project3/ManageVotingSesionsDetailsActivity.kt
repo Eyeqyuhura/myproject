@@ -2,7 +2,6 @@ package com.example.project3
 
 import android.R
 import android.app.DatePickerDialog
-import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -13,15 +12,14 @@ import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.project3.databinding.ActivityVotingSesionsDetailsBinding
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 
-class VotingSesionsDetailsActivity : AppCompatActivity() {
+class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
     private lateinit var binding :ActivityVotingSesionsDetailsBinding
     private lateinit var sessionTitle:String
     private lateinit var startTime: String
@@ -36,6 +34,7 @@ class VotingSesionsDetailsActivity : AppCompatActivity() {
     private lateinit var selectedLevelSpinner:Spinner
     private var levelValues= ArrayList<String>()
     private var courseValues= ArrayList<String>()
+    private var candidateList= mutableListOf<Candidate>()
 
 
 
@@ -45,6 +44,9 @@ class VotingSesionsDetailsActivity : AppCompatActivity() {
         binding=ActivityVotingSesionsDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val mySession=intent.getSerializableExtra("votingSession",VotingSession::class.java)
+        val manageCandidateListAdapter=ManageCandidateListAdapter()
+        binding.candidateListRv.adapter=manageCandidateListAdapter
+        binding.candidateListRv.layoutManager= LinearLayoutManager(this)
         if(mySession!=null) {
             sessionSetOnCreateFlag=true
             session = mySession
@@ -58,6 +60,19 @@ class VotingSesionsDetailsActivity : AppCompatActivity() {
             endTime=date2
             level=session.level
             sessionTitle=session.title
+            firestore.collection("VOTINGSESSIONS").document(session.id)
+                .collection("CANDIDATES").get().addOnSuccessListener {documents ->
+                    for(doc in documents){
+                        val id=doc.getString("id") as String
+                        val name=doc.getString("name") as String
+                        val regNo=doc.getString("regNo") as String
+                        val candidate=Candidate(name, regNo, id)
+                        candidateList.add(candidate)
+                    }
+                    manageCandidateListAdapter.populateArray(candidateList)
+                    manageCandidateListAdapter.notifyDataSetChanged()
+
+                }
         }
         setUpSpinners()
 
@@ -92,20 +107,16 @@ class VotingSesionsDetailsActivity : AppCompatActivity() {
                 val candidateName=binding.studNameEdt.text.toString()
                 val candidateRegNo=binding.studRegNoEdt.text.toString()
                 val candidate=Candidate(candidateName,candidateRegNo)
-                firestore.collection("USERS").document(candidateRegNo).get().addOnSuccessListener {
-                    if (!it.exists()) {
-                        Toast.makeText(this, "Candidate not found in database", Toast.LENGTH_SHORT).show()
-                    }else{
+                firestore.collection("VOTINGSESSIONS")
+                    .document(session.id).collection("CANDIDATES").add(candidate)
+                    .addOnSuccessListener {
                         Toast.makeText(this, "Candidate added successfully", Toast.LENGTH_SHORT).show()
                         firestore.collection("VOTINGSESSIONS")
-                            .document(session.id).collection("CANDIDATES").add(candidate)
-                            .addOnSuccessListener {
-                                firestore.collection("VOTINGSESSIONS")
-                                    .document(session.id).collection("CANDIDATES")
-                                    .document(it.id).update("id",it.id)
-                            }
+                            .document(session.id).collection("CANDIDATES")
+                            .document(it.id).update("id",it.id)
                     }
-                }
+
+
             }
         }
 
@@ -226,6 +237,12 @@ class VotingSesionsDetailsActivity : AppCompatActivity() {
         if(!sessionSetOnCreateFlag){
             res=false
             Toast.makeText(this, "The voting session is not saved", Toast.LENGTH_SHORT).show()
+        }
+        candidateList.forEach{candidate ->
+            if(candidateRegNo==candidate.regNo){
+                res=false
+                Toast.makeText(this, "Candidate already exists", Toast.LENGTH_SHORT).show()
+            }
         }
         return res
 

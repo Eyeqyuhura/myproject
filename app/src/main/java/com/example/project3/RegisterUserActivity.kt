@@ -47,13 +47,11 @@ class RegisterUserActivity : AppCompatActivity() {
                         val newStudent = Student(
                             firebaseAuth.uid.toString(),name,phoneNo,gender,email,password,regNo,false,"pending",selectedCourseId)
                         firestore.collection("USERS")
-                            .document(newStudent.regNo).set(newStudent)
-                            .addOnCompleteListener {
-                                if(it.isSuccessful){
+                            .document(newStudent.id).set(newStudent)
+                            .addOnSuccessListener {
                                     Toast.makeText(this, "User added to database", Toast.LENGTH_SHORT).show()
                                     val intent=Intent(this,HomeActivity::class.java)
                                     startActivity(intent)
-                                }
                             }
                             .addOnFailureListener {
                                 Toast.makeText(this, "User not added to database", Toast.LENGTH_SHORT).show()

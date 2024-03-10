@@ -8,7 +8,7 @@ import com.example.project3.databinding.ActivityVotingSessionBinding
 import com.google.firebase.firestore.FirebaseFirestore
 import java.util.Date
 
-class VotingSessionActivity : AppCompatActivity() {
+class ManagaVotingSessionActivity : AppCompatActivity() {
     private lateinit var binding: ActivityVotingSessionBinding
     private val firestore=FirebaseFirestore.getInstance()
     private val sessionList= mutableListOf<VotingSession>()
@@ -16,8 +16,8 @@ class VotingSessionActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding= ActivityVotingSessionBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        val votingSessionAdapter=VotingSessionAdapter(this)
-        binding.sessionListRv.adapter=votingSessionAdapter
+        val manageVotingSessionAdapter=ManageVotingSessionAdapter(this)
+        binding.sessionListRv.adapter=manageVotingSessionAdapter
         binding.sessionListRv.layoutManager= LinearLayoutManager(this)
         firestore.collection("VOTINGSESSIONS").get().addOnSuccessListener{documents ->
             for(doc in documents){
@@ -30,15 +30,15 @@ class VotingSessionActivity : AppCompatActivity() {
                 val votingSession=VotingSession(title, startTime,endTime,level,selectedLevel,id)
                 sessionList.add(votingSession)
             }
-            votingSessionAdapter.populateArray(sessionList)
+            manageVotingSessionAdapter.populateArray(sessionList)
 
 
-            votingSessionAdapter.notifyDataSetChanged()
+            manageVotingSessionAdapter.notifyDataSetChanged()
 
         }
 
         binding.createNewBtn.setOnClickListener {
-            val intent= Intent(this,VotingSesionsDetailsActivity::class.java)
+            val intent= Intent(this,ManageVotingSesionsDetailsActivity::class.java)
             startActivity(intent)
         }
     }

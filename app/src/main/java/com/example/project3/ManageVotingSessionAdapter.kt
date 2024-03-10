@@ -6,17 +6,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.example.project3.databinding.ActivityVotingSessionBinding
-import com.example.project3.databinding.ItemStudentListBinding
 import com.example.project3.databinding.ItemVotingSessionBinding
-import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class VotingSessionAdapter (private val context:Context):RecyclerView.Adapter<VotingSessionAdapter.VotingSessionViewHolder>(){
+class ManageVotingSessionAdapter (private val context:Context):RecyclerView.Adapter<ManageVotingSessionAdapter.VotingSessionViewHolder>(){
     var votingSessions= mutableListOf<VotingSession>()
-//    val firestore= FirebaseFirestore.getInstance()
     fun populateArray(mutableList: MutableList<VotingSession>){
         votingSessions=mutableList
     }
@@ -55,7 +51,7 @@ class VotingSessionAdapter (private val context:Context):RecyclerView.Adapter<Vo
         val element=votingSessions[position]
         holder.bind(element.title,element.level,element.selectedLevel,element.startTime,element.endTime)
         holder.card.setOnClickListener {
-            val intent = Intent(context, VotingSesionsDetailsActivity::class.java)
+            val intent = Intent(context, ManageVotingSesionsDetailsActivity::class.java)
             intent.putExtra("votingSession",element)
             context.startActivity(intent)
         }
