@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1059987050395",
+    "project_id": "dekut-online-voting-system",
+    "storage_bucket": "dekut-online-voting-system.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1059987050395:android:6020c48e2bbb24f5dd5b3e",
+        "android_client_info": {
+          "package_name": "com.example.project3"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEfIztObF7m_MG2CVqR436tAv5Cl2vo6U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
