@@ -17,7 +17,7 @@ class VotingResultAdapter(): RecyclerView.Adapter<VotingResultAdapter.CandidateL
         fun bind(name:String,regNo:String,totalVotes:Int){
             binding.candidateNameTv3.text = name
             binding.candidateRegNoTv3.text = regNo
-            binding.totalVotesTv.setText(totalVotes)
+            binding.totalVotesTv.text=totalVotes.toString()
         }
 
     }
