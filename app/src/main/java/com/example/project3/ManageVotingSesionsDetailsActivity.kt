@@ -54,8 +54,14 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
             val date1 = dateFormat.format(session.startTime)
             val date2= dateFormat.format(session.endTime)
             binding.titleEdt.setText(session.title)
+            binding.titleEdt.isEnabled=false
             binding.startTimeEdt.setText(date1)
+            binding.startTimeEdt.isEnabled=false
             binding.endTimeEdt.setText(date2)
+            binding.endTimeEdt.isEnabled=false
+            binding.selectedLevelSpinnerV.isEnabled=false
+            binding.levelSpinnerV.isEnabled=false
+            binding.frameLayout.visibility=View.VISIBLE
             startTime=date1
             endTime=date2
             level=session.level
@@ -73,6 +79,8 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
                     manageCandidateListAdapter.notifyDataSetChanged()
 
                 }
+        }else{
+            binding.saveVotingDetailsBtn.visibility=View.VISIBLE
         }
         setUpSpinners()
 
@@ -126,13 +134,13 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
         levelSpinner=binding.levelSpinnerV
         selectedLevelSpinner=binding.selectedLevelSpinnerV
         val highLevelAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, highLevelValues)
-        highLevelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        highLevelAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
         val levelAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, levelValues)
-        levelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        levelAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
         val courseLevelAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, courseValues)
-        courseLevelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        courseLevelAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
         val emptyAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, emptyArray<String>())
-        emptyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        emptyAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
 
 
         levelSpinner.adapter = highLevelAdapter

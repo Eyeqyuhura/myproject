@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -10,8 +11,11 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat"
+        android:theme="@style/Theme.MaterialComponents.NoActionBar.Bridge"
         tools:targetApi="31">
+        <activity
+            android:name=".ReportActivity"
+            android:exported="false" />
         <activity
             android:name=".VotingResultActivity"
             android:exported="false" />
@@ -41,8 +45,7 @@
             android:exported="false" />
         <activity
             android:name=".RegisterUserActivity"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -51,14 +54,10 @@
         </activity>
         <activity
             android:name=".LoginUserActivity"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat" />
+            android:exported="true" />
         <activity
             android:name=".HomeActivity"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat">
-
-        </activity>
+            android:exported="true"></activity>
     </application>
 
 </manifest>

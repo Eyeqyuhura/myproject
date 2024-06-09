@@ -1,7 +1,9 @@
 package com.example.project3
 
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.project3.databinding.ActivityVotingSession2Binding
 import com.google.firebase.firestore.FirebaseFirestore
@@ -11,12 +13,13 @@ class VotingSessionsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityVotingSession2Binding
     private val firestore= FirebaseFirestore.getInstance()
     private val sessionList= mutableListOf<VotingSession>()
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding= ActivityVotingSession2Binding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        val votingSessionsAdapter=VotingSessionsAdapter(this)
+        val regNo=intent.getSerializableExtra("userId",String::class.java)?:""
+        val votingSessionsAdapter=VotingSessionsAdapter(this,regNo)
         binding.sessionListRv2.adapter=votingSessionsAdapter
         binding.sessionListRv2.layoutManager= LinearLayoutManager(this)
         firestore.collection("VOTINGSESSIONS").get().addOnSuccessListener{documents ->

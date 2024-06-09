@@ -4,21 +4,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AdminActivity">
-    <Button
-        android:id="@+id/addAdminBtn"
+    tools:context=".AdminActivity"
+    android:paddingHorizontal="7dp">
+
+    <TextView
+        android:id="@+id/adminActivityTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:text="Add admin"
+        android:layout_marginTop="10dp"
+        android:text="ADMIN PAGE"
+        android:textColor="@color/black"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+    <Button
+        android:id="@+id/addAdminBtn"
+        android:layout_width="0dp"
+        android:layout_marginTop="@dimen/space_from_top"
+        android:layout_height="wrap_content"
+        android:background="@drawable/buttonbackground2"
+        android:text="Add admin"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/adminActivityTitle"
+        tools:visibility="visible" />
+
     <Button
         android:id="@+id/studentValBtn"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="@dimen/space_from_top"
+        android:background="@drawable/buttonbackground2"
         android:text="student Validation"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,9 +51,10 @@
 
     <Button
         android:id="@+id/manageVotingSessBtn"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="90dp"
+        android:layout_marginTop="@dimen/space_from_top"
+        android:background="@drawable/buttonbackground2"
         android:text="manage voting session"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"

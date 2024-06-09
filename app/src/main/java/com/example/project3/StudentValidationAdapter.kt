@@ -49,17 +49,16 @@ class StudentValidationAdapter(private val context: Context): RecyclerView.Adapt
         holder.bind(element.name,element.regNo,position)
         holder.acceptButton.setOnClickListener {
                 firestore.collection("USERS").document(element.regNo).update("validated","accepted")
-                firestore.collection("VALUSER").document(element.regNo).delete().addOnSuccessListener {
+                firestore.collection("TOVALIDATEDUSER").document(element.regNo).delete().addOnSuccessListener {
                     Toast.makeText(context, element.name+" ACCEPTED", Toast.LENGTH_SHORT)
                         .show()
                     studentList.removeAt(holder.adapterPosition)
                     notifyItemRemoved(holder.adapterPosition)
-
             }
         }
         holder.rejectButton.setOnClickListener {
             firestore.collection("USERS").document(element.regNo).update("validated","rejected")
-            firestore.collection("VALUSER").document(element.regNo).delete().addOnSuccessListener {
+            firestore.collection("TOVALIDATEDUSER").document(element.regNo).delete().addOnSuccessListener {
                 Toast.makeText(context, element.name+" REJECTED", Toast.LENGTH_SHORT)
                     .show()
 

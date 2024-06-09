@@ -25,7 +25,8 @@ class RegisterUserActivity : AppCompatActivity() {
     private lateinit var email:String
     private lateinit var password:String
     private lateinit var confirmPassword:String
-    private lateinit var selectedCourse:String
+    private lateinit var selectedCourseTitle:String
+    private lateinit var selectedCourse:Course
     private lateinit var selectedCourseId:String
     private var courseList= ArrayList<Course>()
     private val firestore = FirebaseFirestore.getInstance()
@@ -45,19 +46,20 @@ class RegisterUserActivity : AppCompatActivity() {
                     if (it.isSuccessful) {
                         Toast.makeText(this, "Successfully added user", Toast.LENGTH_SHORT).show()
                         val newStudent = Student(
-                            firebaseAuth.uid.toString(),name,phoneNo,gender,email,password,regNo,false,"pending",selectedCourseId)
+                            firebaseAuth.uid.toString(),name,phoneNo,gender,email,password,regNo,false,"pending",selectedCourseId,selectedCourse.levelId)
                         firestore.collection("USERS")
-                            .document(newStudent.id).set(newStudent)
+                            .document(newStudent.regNo).set(newStudent)
                             .addOnSuccessListener {
                                     Toast.makeText(this, "User added to database", Toast.LENGTH_SHORT).show()
                                     val intent=Intent(this,HomeActivity::class.java)
+                                    intent.putExtra("userId",newStudent.regNo)
                                     startActivity(intent)
                             }
                             .addOnFailureListener {
                                 Toast.makeText(this, "User not added to database", Toast.LENGTH_SHORT).show()
                                 Log.w(ContentValues.TAG, "Error adding document", it)
                             }
-                        firestore.collection("VALUSER")
+                        firestore.collection("TOVALIDATEDUSER")
                             .document(newStudent.regNo).set(newStudent)
 
                     } else {
@@ -94,7 +96,8 @@ class RegisterUserActivity : AppCompatActivity() {
 
         courseSpinner.onItemSelectedListener=object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedCourse= courseSpinner.selectedItem as String
+                selectedCourseTitle= courseSpinner.selectedItem as String
+                selectedCourse=courseList[position]
             }
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
@@ -114,7 +117,7 @@ class RegisterUserActivity : AppCompatActivity() {
         email=binding.edtEmail.text.toString()
         password=binding.edtPassword.text.toString()
         confirmPassword=binding.edtConfirmPassword.text.toString()
-        selectedCourseId=courseList.find { it.courseTitle==selectedCourse }?.id?:"7"
+        selectedCourseId=courseList.find { it.courseTitle==selectedCourseTitle }?.id?:"7"
     }
 
     private fun validation():Boolean{

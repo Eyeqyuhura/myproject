@@ -1,7 +1,9 @@
 package com.example.project3
 
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -17,12 +19,13 @@ class VotingActivity : AppCompatActivity() {
     private var candidateList= mutableListOf<Candidate>()
     private lateinit var viewModel: VotingActivityViewModel
     private var checkBoxValueList=ArrayList<Boolean>()
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=ActivityVotingBinding.inflate(layoutInflater)
         viewModel = ViewModelProvider(this).get(VotingActivityViewModel::class.java)
         setContentView(binding.root)
-
+        val userRegNo=intent.getSerializableExtra("userId",String::class.java)?:""
         val candidateListAdapter=VotingCandidateLsAdapter(viewModel)
         binding.candidateVoteListRv.adapter=candidateListAdapter
         binding.candidateVoteListRv.layoutManager=LinearLayoutManager(this)
@@ -50,19 +53,27 @@ class VotingActivity : AppCompatActivity() {
                 val index=viewModel.checkBoxValueList.value?.indexOfFirst { it==true  }
                 if(index!=null&&index!=-1){
                     val votedCandidate=candidateList[index]
-                    firestore.collection("USERS").document(firebaseAuth.uid.toString()).get().addOnSuccessListener {
+                    firestore.collection("USERS").document(userRegNo).get().addOnSuccessListener {
                         if(it.exists()){
                             val username=it.getString("name") as String
                             val regno=it.getString("regNo") as String
                             firestore.collection("VOTINGSESSIONS")
                                 .document(mySession.id).collection("VOTERS")
-                                .document(firebaseAuth.uid.toString()).set(mapOf("username" to username,"regNo" to regno))
-                            firestore.collection("VOTINGSESSIONS").document(mySession.id)
-                                .collection("UNCOUNTEDVOTES")
-                                .add(mapOf("id" to votedCandidate.id,"name" to votedCandidate.name)).addOnSuccessListener {
-                                    Toast.makeText(this, "vote saved successfully", Toast.LENGTH_SHORT).show()
-
+                                .document(userRegNo).get().addOnSuccessListener {
+//                                    if(!it.exists()){//uncomment later
+                                        firestore.collection("VOTINGSESSIONS")
+                                            .document(mySession.id).collection("VOTERS")
+                                            .document(userRegNo).set(mapOf("username" to username,"regNo" to regno))
+                                        firestore.collection("VOTINGSESSIONS").document(mySession.id)
+                                            .collection("UNCOUNTEDVOTES")
+                                            .add(mapOf("id" to votedCandidate.id,"name" to votedCandidate.name)).addOnSuccessListener {
+                                                Toast.makeText(this, "vote saved successfully", Toast.LENGTH_SHORT).show()
+                                            }
+//                                    }else{
+//                                        Toast.makeText(this, "vote already cast", Toast.LENGTH_SHORT).show()
+//                                    }
                                 }
+
 
                         }
 

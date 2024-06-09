@@ -15,9 +15,13 @@ class VotingResultAdapter(): RecyclerView.Adapter<VotingResultAdapter.CandidateL
 
     class CandidateListViewHolder(val binding: ItemCandidateResultsBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(name:String,regNo:String,totalVotes:Int){
+
             binding.candidateNameTv3.text = name
             binding.candidateRegNoTv3.text = regNo
-            binding.totalVotesTv.text=totalVotes.toString()
+            val totalVotesText= "$totalVotes "
+            binding.totalVotesTv.text=totalVotesText
+            if(totalVotes==1) binding.votesTv.text="vote"
+
         }
 
     }

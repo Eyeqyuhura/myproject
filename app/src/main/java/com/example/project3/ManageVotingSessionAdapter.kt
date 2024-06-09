@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.RelativeLayout
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.project3.databinding.ItemVotingSessionBinding
@@ -30,7 +31,7 @@ class ManageVotingSessionAdapter (private val context:Context):RecyclerView.Adap
             binding.sessionSchedualTv.text="from $startDate to $endDate"
 
         }
-        val card: ConstraintLayout
+        val card: RelativeLayout
             get(){
             return binding.sessionCard
         }

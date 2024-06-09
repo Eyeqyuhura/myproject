@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class VotingSessionsAdapter(private val context: Context): RecyclerView.Adapter<VotingSessionsAdapter.VotingSessionViewHolder>() {
+class VotingSessionsAdapter(private val context: Context,val userRegNo : String): RecyclerView.Adapter<VotingSessionsAdapter.VotingSessionViewHolder>() {
     var votingSessions= mutableListOf<VotingSession>()
     fun populateArray(mutableList: MutableList<VotingSession>){
         votingSessions=mutableList
@@ -60,6 +60,7 @@ class VotingSessionsAdapter(private val context: Context): RecyclerView.Adapter<
         holder.toVote.setOnClickListener {
             val intent = Intent(context, VotingActivity::class.java)
             intent.putExtra("votingSession",element)
+            intent.putExtra("userId",userRegNo)
             context.startActivity(intent)
         }
         holder.toResult.setOnClickListener {

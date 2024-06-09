@@ -17,40 +17,53 @@ class AddAdminActivity : AppCompatActivity() {
     private lateinit var studentRegNo:String
     private var level=""
     private var selectedLevel=""
+    private var selectedLevelType=""
+    private var selectedLevelId=""
     private lateinit var levelSpinner: Spinner
     private lateinit var selectedLevelSpinner: Spinner
-    private var highLevelValues= arrayListOf<String>("high manager","level manager","course manager")
+    private var highLevelValues= arrayListOf<String>("high manager","school manager","course manager")
     private var levelValues= ArrayList<String>()
+    private var levelValuesId= ArrayList<String>()
     private var courseValues= ArrayList<String>()
+    private var courseValuesId= ArrayList<String>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=ActivityAddAdminBinding.inflate(layoutInflater)
         setContentView(binding.root)
+//        val regNo=intent.getSerializableExtra("userId",String::class.java)?:""
         setUpSpinners()
 
         binding.saveAdminBtn.setOnClickListener {
 //            Log.w(TAG, "Error getting documents.", exception)
             if(validateInputs()){
-                firestore.collection("USERS").document(studentRegNo).update("isAdmin",true)
-                    .addOnSuccessListener {
-                        firestore.collection("ADMIN").document(studentRegNo)
-                            .set(mapOf("level" to level,"selectedLevel" to selectedLevel))
-                            .addOnSuccessListener {
-                                Toast.makeText(this, "SAVE SUCCESSFUL", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-                            .addOnFailureListener{
-                                Toast.makeText(this, "SAVE UNSUCCESSFUL", Toast.LENGTH_SHORT)
-                                    .show()
-                            }
-                    }.addOnFailureListener{
-                        Toast.makeText(this, "Check on Internet", Toast.LENGTH_SHORT)
-                            .show()
+                firestore.collection("USERS")
+                    .document(studentRegNo).get().addOnSuccessListener{document ->
+                        val validate= document.getString("validated")
+                        if(validate=="accepted"){
+                            firestore.collection("USERS").document(studentRegNo).update("admin",true)
+                                .addOnSuccessListener {
+                                    firestore.collection("ADMIN").document(studentRegNo)
+                                        .set(mapOf("level" to level,"selectedLevel" to selectedLevelId))
+                                        .addOnSuccessListener {
+                                            Toast.makeText(this, "SAVE SUCCESSFUL", Toast.LENGTH_SHORT)
+                                                .show()
+                                        }
+                                        .addOnFailureListener{
+                                            Toast.makeText(this, "SAVE UNSUCCESSFUL", Toast.LENGTH_SHORT)
+                                                .show()
+                                        }
+                                }.addOnFailureListener{
+                                    Toast.makeText(this, "Check on Internet", Toast.LENGTH_SHORT)
+                                        .show()
+                                }
+                        }else{
+                            Toast.makeText(this, "USER NOT VERIFIED", Toast.LENGTH_SHORT)
+                                .show()
+                        }
                     }
+
             }
 //            Log.d(getInputValues)
-
-
         }
     }
 
@@ -74,6 +87,7 @@ class AddAdminActivity : AppCompatActivity() {
                 for (document in result) {
                     val data = document.data
                     courseValues.add( data["courseTitle"] as String)
+                    courseValuesId.add(document.id)
                 }
             }
             .addOnFailureListener { exception ->
@@ -85,6 +99,7 @@ class AddAdminActivity : AppCompatActivity() {
                 for (document in result) {
                     val data = document.data
                     levelValues.add( data["levelTitle"] as String)
+                    levelValuesId.add(document.id)
                 }
             }
             .addOnFailureListener { exception ->
@@ -95,14 +110,16 @@ class AddAdminActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 level= levelSpinner.selectedItem as String
                 when (level) {
-                    "level manager" -> {
+                    "school manager" -> {
                         selectedLevelSpinner.adapter=levelAdapter
+                        selectedLevelType="school"
                     }
                     "high manager" -> {
                         selectedLevelSpinner.adapter=emptyAdapter
                     }
                     else -> {
                         selectedLevelSpinner.adapter=courseLevelAdapter
+                        selectedLevelType="course"
                     }
                 }
                 // Do something with the selected item
@@ -117,6 +134,14 @@ class AddAdminActivity : AppCompatActivity() {
         selectedLevelSpinner.onItemSelectedListener=object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 selectedLevel= selectedLevelSpinner.selectedItem as String
+                when(selectedLevelType){
+                    "school"->{
+                        selectedLevelId=levelValuesId[levelValues.indexOf(selectedLevel)]
+                    }
+                    "course"->{
+                        selectedLevelId=courseValuesId[courseValues.indexOf(selectedLevel)]
+                    }
+                }
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
