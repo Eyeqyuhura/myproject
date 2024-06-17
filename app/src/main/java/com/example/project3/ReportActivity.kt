@@ -1,13 +1,16 @@
 package com.example.project3
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ShareCompat
+import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.project3.databinding.ActivityReportBinding
-import com.github.mikephil.charting.data.PieEntry
 import com.google.firebase.firestore.FirebaseFirestore
 import com.itextpdf.text.BaseColor
 import com.itextpdf.text.Chunk
@@ -24,9 +27,7 @@ import com.itextpdf.text.pdf.PdfWriter
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
-import java.net.URL
 import java.text.SimpleDateFormat
-import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
@@ -37,52 +38,88 @@ import kotlin.math.roundToInt
 class ReportActivity : AppCompatActivity() {
     private lateinit var binding:ActivityReportBinding
     val firestore = FirebaseFirestore.getInstance()
-    private var candidateList= mutableListOf<Candidate>()
+    private lateinit var sortedCandidateList:kotlin.collections.List<Candidate>
     var mTotalVotes:Double=0.0
     var winnerName=""
     var topVotes=0
     private lateinit  var session:VotingSession
+    private lateinit  var  mStoragePath:File
+    val  mUnixTime= System.currentTimeMillis() / 1000L
+    private lateinit  var mReportFile:File
+    val document = Document(PageSize.A4)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityReportBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val mySession = intent.getSerializableExtra("votingSession", VotingSession::class.java)
+        var candidateList=mutableListOf<Candidate>()
         if (mySession != null) {
             session=mySession
             firestore.collection("VOTINGSESSIONS").document(mySession.id)
                 .collection("CANDIDATES").get().addOnSuccessListener { documents ->
                     for (doc in documents) {
-                        val id = doc.getString("id") as String
+                        val id = doc.getString("id") ?: ""
                         val name = doc.getString("name") as String
-                        val regNo = doc.getString("regNo") as String
+                        val regNo = doc.getString("regNo") ?: ""
                         val totalVotes = doc.getDouble("totalVotes") as Double
                         val candidate = Candidate(name, regNo, id, totalVotes.toInt())
                         candidateList.add(candidate)
                         mTotalVotes += totalVotes
                         if (topVotes < totalVotes) {
-                            topVotes=totalVotes.toInt()
-                            winnerName = name
+                            topVotes = totalVotes.toInt()
                         }
                     }
+                    sortedCandidateList = candidateList.sortedByDescending { it.totalVotes }
+
+                    winnerName = if(sortedCandidateList.size>1 &&
+                        sortedCandidateList[0].totalVotes==sortedCandidateList[1].totalVotes) ({
+                        "No defined winner"
+                    }).toString() else ({
+                        sortedCandidateList[0].name
+                    }).toString()
+
+
                     createPDF()
                 }
         }
 
+        binding.btnShareReport.setOnClickListener {
+            if (mReportFile.exists()) {
+                val uri = FileProvider.getUriForFile(this, "${this.packageName}.provider", mReportFile)
+                Toast.makeText(this, "it.exception.toString()", Toast.LENGTH_SHORT).show()
+
+                val shareIntent =  Intent().apply {
+                    action = Intent.ACTION_SEND
+                    type = "application/pdf"
+                    putExtra(Intent.EXTRA_STREAM, uri)
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                }
+
+                val chooser = Intent.createChooser(shareIntent, "Choose bar")
+                startActivity(chooser)
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        mReportFile.delete()
+        super.onDestroy()
 
     }
     private fun createPDF(){
         //check if they exist, if not create them(directory)
-        val storagePath = File(getExternalFilesDir(""), "Reports");
-        if (!storagePath.exists()) {
-            storagePath.mkdirs()
+        mStoragePath = File(getExternalFilesDir(""), "Reports");
+        if (!mStoragePath.exists()) {
+            mStoragePath.mkdirs()
         }
 
-        val unixTime = System.currentTimeMillis() / 1000L
-        val reportFile = File(storagePath, "Report$unixTime.pdf")
+
+        mReportFile = File(mStoragePath, "Report$mUnixTime.pdf")
         val document = Document(PageSize.A4)
         try {
-            val output = FileOutputStream(reportFile)
+
+            val output = FileOutputStream(mReportFile)
             PdfWriter.getInstance(document, output)
             document.open()
             addParagraph(
@@ -129,7 +166,7 @@ class ReportActivity : AppCompatActivity() {
 
             val members = mutableListOf<String>()
             val resultStatements= mutableListOf<String>()
-            for(candidate in candidateList){
+            for(candidate in sortedCandidateList){
                 val name=candidate.name
                 val votes=candidate.totalVotes
                 val percentageDouble=(votes/mTotalVotes)*100
@@ -161,9 +198,9 @@ class ReportActivity : AppCompatActivity() {
             val winner=if (session.endTime<currentDate){
                 winnerName
             }else if (session.startTime>currentDate){
-                "Votting pending start"
+                "Voting pending start"
             }else{
-                "Votting Ongoing"
+                "Voting Ongoing"
             }
             addParagraph(
                 arrayOf("Winner: ", winner),
@@ -195,7 +232,7 @@ class ReportActivity : AppCompatActivity() {
         val pdfView=binding.reportPdfViewer
 
         pdfView.initWithUrl(
-            url = getFileUrl(reportFile),
+            url = getFileUrl(mReportFile),
             lifecycleCoroutineScope = lifecycleScope,
             lifecycle = lifecycle
         )

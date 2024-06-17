@@ -4,14 +4,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
+    android:orientation="vertical">
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        />
+        android:background="?attr/colorPrimary" />
+
     <Button
         android:id="@+id/btn_share_report"
         android:layout_width="wrap_content"
@@ -20,6 +20,8 @@
         android:text="share"
         app:layout_constraintStart_toStartOf="@+id/select_theme"
         app:layout_constraintTop_toBottomOf="@+id/theme_spinner" />
+
+
     <com.rajat.pdfviewer.PdfRendererView
         android:id="@+id/report_pdf_viewer"
         android:layout_width="match_parent"

@@ -23,7 +23,7 @@ class VotingResultActivity : AppCompatActivity() {
     private lateinit var binding:ActivityVotingSessionResultBinding
     val firestore = FirebaseFirestore.getInstance()
     private lateinit var session: VotingSession
-    private var candidateList= mutableListOf<Candidate>()
+    private var candidateList= listOf<Candidate>()
     private var pieEntryList= arrayListOf<PieEntry>()
     private lateinit var viewModel: VotingResultAdapter
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -41,17 +41,25 @@ class VotingResultActivity : AppCompatActivity() {
         if(mySession!=null) {
             firestore.collection("VOTINGSESSIONS").document(mySession.id)
                 .collection("CANDIDATES").get().addOnSuccessListener {documents ->
+                    var tempList= mutableListOf<Candidate>()
+                    var overallVotes=0.0
                     for(doc in documents){
-                        val id=doc.getString("id") as String
+                        val id=doc.getString("id")?:""
                         val name=doc.getString("name") as String
-                        val regNo=doc.getString("regNo") as String
+                        val regNo=doc.getString("regNo") ?:""
                         val totalVotes=doc.getDouble("totalVotes") as Double
                         val candidate=Candidate(name, regNo, id,totalVotes.toInt())
-                        candidateList.add(candidate)
-                        pieEntryList.add(PieEntry(totalVotes.toFloat(),name))
+                        tempList.add(candidate)
+                        overallVotes+=totalVotes.toFloat()
                     }
+                    candidateList=tempList.sortedByDescending { it.totalVotes }
                     candidateListAdapter.populateArray(candidateList)
                     candidateListAdapter.notifyDataSetChanged()
+                    for(i in 0..2){
+                        pieEntryList.add(PieEntry(candidateList[i].totalVotes.toFloat(),candidateList[i].name))
+                        overallVotes-=candidateList[i].totalVotes.toFloat()
+                    }
+                    pieEntryList.add(PieEntry(overallVotes.toFloat(),"Others"))
                     val pieDataSet=PieDataSet(pieEntryList,"Candidates")
                     pieDataSet.colors=ColorTemplate.MATERIAL_COLORS.toList()
                     val formatter = object : ValueFormatter() {
