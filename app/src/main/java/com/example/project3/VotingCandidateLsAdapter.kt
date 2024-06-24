@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.project3.databinding.ItemCandidateVoteBinding
 
 class VotingCandidateLsAdapter(val viewModel: VotingActivityViewModel):RecyclerView.Adapter<VotingCandidateLsAdapter.CandidateListViewHolder>() {
-    private lateinit var candidateList:List<Candidate>
+    private var candidateList= listOf<Candidate>()
     //    val firestore= FirebaseFirestore.getInstance()
     fun populateArray(mutableCandidateList: List<Candidate>,){
         candidateList=mutableCandidateList

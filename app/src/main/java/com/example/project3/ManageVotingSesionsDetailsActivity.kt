@@ -69,9 +69,9 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
             firestore.collection("VOTINGSESSIONS").document(session.id)
                 .collection("CANDIDATES").get().addOnSuccessListener {documents ->
                     for(doc in documents){
-                        val id=doc.getString("id") as String
+                        val id=doc.getString("id") ?:""
                         val name=doc.getString("name") as String
-                        val regNo=doc.getString("regNo") as String
+                        val regNo=doc.getString("regNo") ?:""
                         val candidate=Candidate(name, regNo, id)
                         candidateList.add(candidate)
                     }

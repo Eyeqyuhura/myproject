@@ -2,6 +2,7 @@ package com.example.project3
 
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -9,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.project3.databinding.ActivityVotingBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
 
 class VotingActivity : AppCompatActivity() {
@@ -19,6 +21,7 @@ class VotingActivity : AppCompatActivity() {
     private var candidateList= mutableListOf<Candidate>()
     private lateinit var viewModel: VotingActivityViewModel
     private var checkBoxValueList=ArrayList<Boolean>()
+
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,17 +38,21 @@ class VotingActivity : AppCompatActivity() {
             session=mySession
             firestore.collection("VOTINGSESSIONS").document(mySession.id)
                 .collection("CANDIDATES").get().addOnSuccessListener {documents ->
+
                     for(doc in documents){
-                        val id=doc.getString("id")?:""
+                        val id=doc.getString("id") as String
                         val name=doc.getString("name") as String
-                        val regNo=doc.getString("regNo")?:""
+                        val regNo=doc.getString("regNo") as String
                         val candidate=Candidate(name, regNo, id)
+
                         candidateList.add(candidate)
                         checkBoxValueList.add(false)
                     }
                     if(viewModel.checkBoxValueList.value!!.size<1) viewModel.checkBoxValueList.value=checkBoxValueList
                     candidateListAdapter.populateArray(candidateList)
                     candidateListAdapter.notifyDataSetChanged()
+
+                }.addOnFailureListener {
 
                 }
 
@@ -88,4 +95,6 @@ class VotingActivity : AppCompatActivity() {
 
 
     }
+
+
 }

@@ -7,10 +7,16 @@ import com.example.project3.databinding.ItemCandidateResultsBinding
 import com.example.project3.databinding.ItemCandidateVoteBinding
 
 class VotingResultAdapter(): RecyclerView.Adapter<VotingResultAdapter.CandidateListViewHolder>() {
-    var candidateList= listOf<Candidate>()
+    var candidateList= mutableListOf<Candidate>()
     //    val firestore= FirebaseFirestore.getInstance()
-    fun populateArray(mutableCandidateList: List<Candidate>,){
+    fun populateArray(mutableCandidateList: MutableList<Candidate>,){
         candidateList=mutableCandidateList
+
+    }
+
+    fun candidateDataChanged(index:Int,candidate: Candidate){
+        candidateList[index]=candidate
+        notifyItemChanged(index)
     }
 
     class CandidateListViewHolder(val binding: ItemCandidateResultsBinding): RecyclerView.ViewHolder(binding.root){
