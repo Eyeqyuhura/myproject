@@ -132,7 +132,7 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
 
         binding.addCandidateBtn.setOnClickListener {
             val startDate=dateFormat.parse(startTime)!!
-//            if(startDate>date) { //
+//            if(startDate>date) { //to return once testing ends
             if(validateCandidateInputs()){
                 val candidateName=binding.studNameEdt.text.toString()
                 val candidateRegNo=binding.studRegNoEdt.text.toString()
@@ -159,35 +159,21 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
 //            if(startDate>date) { //to return once testing ends
                 val size = viewModel.checkBoxValueList.value?.size ?: 0
                 val toDeleteIdList = mutableListOf<String>()
-//                val toDeleteIndexList = mutableListOf<Int>()
                 if (size > 0) {//check bound length error
                     for (i in 0..<size) {
                         val check = viewModel.checkBoxValueList.value!![i]
                         if (check) {
                             toDeleteIdList.add(candidateList[i].id)
-//                            toDeleteIndexList.add(i)
                         }
                     }
                 }
-//                for (index in toDeleteIndexList) {
-//                    candidateList.removeAt(index)
-//                    viewModel.checkBoxValueList.value?.removeAt(index)
-//                }
-//                manageCandidateListAdapter.populateArray(candidateList)
-//                if (toDeleteIndexList.size==1){
-//                    manageCandidateListAdapter.notifyItemRemoved(toDeleteIndexList[0])
-//                }else{
-//                    manageCandidateListAdapter.notifyDataSetChanged()
-//                }
                 for (id in toDeleteIdList) {
                     if(id!="") {
                         firestore.collection("VOTINGSESSIONS")
                             .document(session.id).collection("CANDIDATES").document(id).delete()
                     }
                 }
-//            }else{
-//                Toast.makeText(this, "Can't delete candidates once voting has started", Toast.LENGTH_SHORT).show()
-//            }
+
 
         }
 
@@ -226,29 +212,7 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
             endTime = date2
             level = session.level
             sessionTitle = session.title
-//            firestore.collection("VOTINGSESSIONS").document(session.id)
-//                .collection("CANDIDATES").get().addOnSuccessListener { documents ->
-//                    for (doc in documents) {
-//                        val id = doc.getString("id") ?: ""
-//                        val name = doc.getString("name") as String
-//                        val regNo = doc.getString("regNo") ?: ""
-//                        val image=doc.getString("imageName") ?: ""
-//                        val candidate = Candidate(name, regNo, id,imageName=image)
-//                        candidateList.add(candidate)
-//                        checkBoxValueList.add(false)
-//                    }
-//                    var count=0
-//                    for(value in candidateList){
-//                        idMap[value.id]=count
-//                        count+=1
-//                    }
-//                    if (viewModel.checkBoxValueList.value!!.size < 1) viewModel.checkBoxValueList.value =
-//                        checkBoxValueList
-//                    manageCandidateListAdapter.populateArray(candidateList)
-//                    manageCandidateListAdapter.notifyDataSetChanged()
-//
-//                }
-                    addFirebaseListener()
+            addFirebaseListener()
 
     }
 
