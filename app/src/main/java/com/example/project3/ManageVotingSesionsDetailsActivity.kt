@@ -2,21 +2,39 @@ package com.example.project3
 
 import android.R
 import android.app.DatePickerDialog
+import android.content.Intent
+import android.content.res.Resources
+import android.net.Uri
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.webkit.MimeTypeMap
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.project3.databinding.ActivityVotingSesionsDetailsBinding
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import de.hdodenhof.circleimageview.CircleImageView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
@@ -35,6 +53,18 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
     private var levelValues= ArrayList<String>()
     private var courseValues= ArrayList<String>()
     private var candidateList= mutableListOf<Candidate>()
+    private lateinit var viewModel: ManageVotingSesionsDetailsViewModel
+    private var checkBoxValueList=ArrayList<Boolean>()
+    private val dateFormat= SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+    private val currentDate = LocalDate.now()
+    private val date = Date.from(currentDate.atStartOfDay(ZoneId.systemDefault()).toInstant())
+    private lateinit var startForResult: ActivityResultLauncher<Intent>
+    private lateinit var imageUri: Uri
+    private var imageName=""
+    private val firebaseStorage = FirebaseStorage.getInstance().reference
+    private lateinit var manageCandidateListAdapter:ManageCandidateListAdapter
+    private val idMap = mutableMapOf<String,Int>()
+
 
 
 
@@ -43,46 +73,28 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding=ActivityVotingSesionsDetailsBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        viewModel = ViewModelProvider(this).get(ManageVotingSesionsDetailsViewModel::class.java)
         val mySession=intent.getSerializableExtra("votingSession",VotingSession::class.java)
-        val manageCandidateListAdapter=ManageCandidateListAdapter()
+        manageCandidateListAdapter=ManageCandidateListAdapter(viewModel,this)
         binding.candidateListRv.adapter=manageCandidateListAdapter
         binding.candidateListRv.layoutManager= LinearLayoutManager(this)
-        if(mySession!=null) {
-            sessionSetOnCreateFlag=true
+        if (mySession != null) {
             session = mySession
-            val dateFormat= SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-            val date1 = dateFormat.format(session.startTime)
-            val date2= dateFormat.format(session.endTime)
-            binding.titleEdt.setText(session.title)
-            binding.titleEdt.isEnabled=false
-            binding.startTimeEdt.setText(date1)
-            binding.startTimeEdt.isEnabled=false
-            binding.endTimeEdt.setText(date2)
-            binding.endTimeEdt.isEnabled=false
-            binding.selectedLevelSpinnerV.isEnabled=false
-            binding.levelSpinnerV.isEnabled=false
-            binding.frameLayout.visibility=View.VISIBLE
-            startTime=date1
-            endTime=date2
-            level=session.level
-            sessionTitle=session.title
-            firestore.collection("VOTINGSESSIONS").document(session.id)
-                .collection("CANDIDATES").get().addOnSuccessListener {documents ->
-                    for(doc in documents){
-                        val id=doc.getString("id") ?:""
-                        val name=doc.getString("name") as String
-                        val regNo=doc.getString("regNo") ?:""
-                        val candidate=Candidate(name, regNo, id)
-                        candidateList.add(candidate)
-                    }
-                    manageCandidateListAdapter.populateArray(candidateList)
-                    manageCandidateListAdapter.notifyDataSetChanged()
-
-                }
-        }else{
-            binding.saveVotingDetailsBtn.visibility=View.VISIBLE
+            setUpViews()
+        } else {
+            binding.saveVotingDetailsBtn.visibility = View.VISIBLE
         }
         setUpSpinners()
+        startForResult = registerForActivityResult(
+            ActivityResultContracts.StartActivityForResult()
+        ) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val data = result.data?:Intent()
+                imageUri = data.data!!
+                imageName=System.currentTimeMillis().toString() + "." + getFileExtension(imageUri)
+                showImage(imageUri.toString(),binding.addCandidateImage)
+            }
+        }
 
         binding.saveVotingDetailsBtn.setOnClickListener {
             if(validateVotingInputs()) {
@@ -110,11 +122,22 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
             showDatePicker("date2")
         }
 
+        binding.addCandidateImage.setOnClickListener {
+            val galleryIntent = Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+//            val galleryIntent = Intent()
+//            galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
+//            galleryIntent.setType("image/*");
+            startForResult.launch(galleryIntent);
+        }
+
         binding.addCandidateBtn.setOnClickListener {
+            val startDate=dateFormat.parse(startTime)!!
+//            if(startDate>date) { //
             if(validateCandidateInputs()){
                 val candidateName=binding.studNameEdt.text.toString()
                 val candidateRegNo=binding.studRegNoEdt.text.toString()
-                val candidate=Candidate(candidateName,candidateRegNo)
+                val candidate=Candidate(candidateName,candidateRegNo,imageName=imageName)
+
                 firestore.collection("VOTINGSESSIONS")
                     .document(session.id).collection("CANDIDATES").add(candidate)
                     .addOnSuccessListener {
@@ -122,11 +145,110 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
                         firestore.collection("VOTINGSESSIONS")
                             .document(session.id).collection("CANDIDATES")
                             .document(it.id).update("id",it.id)
+                        uploadToFirebase(imageUri)
                     }
-
-
             }
+//            }else{
+//                Toast.makeText(this, "Can't add candidates once voting has started", Toast.LENGTH_SHORT).show()
+//            }
         }
+
+        binding.deleteCandidateBtn.setOnClickListener {
+
+            val startDate=dateFormat.parse(startTime)!!
+//            if(startDate>date) { //to return once testing ends
+                val size = viewModel.checkBoxValueList.value?.size ?: 0
+                val toDeleteIdList = mutableListOf<String>()
+//                val toDeleteIndexList = mutableListOf<Int>()
+                if (size > 0) {//check bound length error
+                    for (i in 0..<size) {
+                        val check = viewModel.checkBoxValueList.value!![i]
+                        if (check) {
+                            toDeleteIdList.add(candidateList[i].id)
+//                            toDeleteIndexList.add(i)
+                        }
+                    }
+                }
+//                for (index in toDeleteIndexList) {
+//                    candidateList.removeAt(index)
+//                    viewModel.checkBoxValueList.value?.removeAt(index)
+//                }
+//                manageCandidateListAdapter.populateArray(candidateList)
+//                if (toDeleteIndexList.size==1){
+//                    manageCandidateListAdapter.notifyItemRemoved(toDeleteIndexList[0])
+//                }else{
+//                    manageCandidateListAdapter.notifyDataSetChanged()
+//                }
+                for (id in toDeleteIdList) {
+                    if(id!="") {
+                        firestore.collection("VOTINGSESSIONS")
+                            .document(session.id).collection("CANDIDATES").document(id).delete()
+                    }
+                }
+//            }else{
+//                Toast.makeText(this, "Can't delete candidates once voting has started", Toast.LENGTH_SHORT).show()
+//            }
+
+        }
+
+    }
+
+    private fun getFileExtension(mUri: Uri): String? {
+        val cr = contentResolver
+        val mime = MimeTypeMap.getSingleton()
+        return mime.getExtensionFromMimeType(cr.getType(mUri))
+    }
+
+    private fun uploadToFirebase(uriRes:Uri) {
+        val fileRef = firebaseStorage.child(imageName);
+        val uploadTask=fileRef.putFile(uriRes)
+        uploadTask.addOnFailureListener{
+            Log.e("TAG_MYAPPLICATION", "uploadToFirebase: "+it.message, )
+            Toast.makeText(this, "Image upload Failed", Toast.LENGTH_SHORT).show()
+        }
+
+    }
+
+    private fun setUpViews( ) {
+            sessionSetOnCreateFlag = true
+            val date1 = dateFormat.format(session.startTime)
+            val date2 = dateFormat.format(session.endTime)
+            binding.titleEdt.setText(session.title)
+            binding.titleEdt.isEnabled = false
+            binding.startTimeEdt.setText(date1)
+            binding.startTimeEdt.isEnabled = false
+            binding.endTimeEdt.setText(date2)
+            binding.endTimeEdt.isEnabled = false
+            binding.selectedLevelSpinnerV.isEnabled = false
+            binding.levelSpinnerV.isEnabled = false
+            binding.frameLayout.visibility = View.VISIBLE
+            startTime = date1
+            endTime = date2
+            level = session.level
+            sessionTitle = session.title
+//            firestore.collection("VOTINGSESSIONS").document(session.id)
+//                .collection("CANDIDATES").get().addOnSuccessListener { documents ->
+//                    for (doc in documents) {
+//                        val id = doc.getString("id") ?: ""
+//                        val name = doc.getString("name") as String
+//                        val regNo = doc.getString("regNo") ?: ""
+//                        val image=doc.getString("imageName") ?: ""
+//                        val candidate = Candidate(name, regNo, id,imageName=image)
+//                        candidateList.add(candidate)
+//                        checkBoxValueList.add(false)
+//                    }
+//                    var count=0
+//                    for(value in candidateList){
+//                        idMap[value.id]=count
+//                        count+=1
+//                    }
+//                    if (viewModel.checkBoxValueList.value!!.size < 1) viewModel.checkBoxValueList.value =
+//                        checkBoxValueList
+//                    manageCandidateListAdapter.populateArray(candidateList)
+//                    manageCandidateListAdapter.notifyDataSetChanged()
+//
+//                }
+                    addFirebaseListener()
 
     }
 
@@ -252,6 +374,10 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
                 Toast.makeText(this, "Candidate already exists", Toast.LENGTH_SHORT).show()
             }
         }
+        if (imageName==""){
+            res=false
+            Toast.makeText(this, "Candidate Photo should be added", Toast.LENGTH_SHORT).show()
+        }
         return res
 
     }
@@ -290,6 +416,14 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
         return true
     }
 
+    fun showImage(url: String?, imgView: CircleImageView) {
+        if (url != null && url.isEmpty() == false) {
+            val width = Resources.getSystem().displayMetrics.widthPixels
+            Glide.with(this).load(url).override(width * 1 / 2, width * 2 / 3)
+                .centerCrop().into(imgView)
+        }
+    }
+
     private fun showDatePicker(dateType:String) {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -314,5 +448,71 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
         )
 
         datePickerDialog.show()
+    }
+    private fun addFirebaseListener(){
+        firestore.collection("VOTINGSESSIONS").document(session.id)
+            .collection("CANDIDATES").addSnapshotListener { value, error ->
+                if (error != null) {
+                    Log.e("TAG voting activity", "addListener: "+error.message,error )
+                    return@addSnapshotListener
+                }
+                if (value != null) {
+//                    resumeChannel.receive()
+                    for (dc in value.documentChanges) {
+                        when (dc.type) {
+                            DocumentChange.Type.ADDED -> {
+                                val addedData = dc.document.data
+                                val id=(addedData["id"] ?:"").toString()
+                                val name=addedData["name"] as String
+                                val regNo=addedData["regNo"] as String
+                                val image=(addedData["imageName"] ?: "").toString()
+                                val candidate = Candidate(name, regNo, id,imageName=image)
+                                candidateList.add(candidate)
+                                checkBoxValueList.add(false)
+                                viewModel.checkBoxValueList.value!!.add(false)
+                                manageCandidateListAdapter.addCandidate(candidate)
+                                idMap[id]=candidateList.size-1
+                            }
+                            DocumentChange.Type.REMOVED->{
+                                val deletedData = dc.document.data
+                                val id=(deletedData["id"] ?:"").toString()
+                                val index =idMap[id]?:-1
+                                if (index!=-1) {
+                                    candidateList.removeAt(index)
+                                    checkBoxValueList.removeAt(index)
+                                    viewModel.checkBoxValueList.value!!.removeAt(index)
+                                    manageCandidateListAdapter.removeCandidate(index)
+                                    idMap.remove(id)
+                                }
+
+
+                            }
+                            DocumentChange.Type.MODIFIED->{
+                                val modifiedData = dc.document.data
+                                val id=(modifiedData["id"] ?:"").toString()
+                                val name=modifiedData["name"] as String
+                                val regNo=modifiedData["regNo"] as String
+                                val image=(modifiedData["imageName"] ?: "").toString()
+                                val candidate = Candidate(name, regNo, id,imageName=image)
+                                var index =idMap[id]?:-1
+                                if (index!=-1) {
+                                    candidateList[index]=candidate
+                                    manageCandidateListAdapter.modifiedCandidate(index,candidate)
+                                }else{
+                                    index=candidateList.size-1
+                                    idMap[id]=candidateList.size-1
+                                    candidateList[index]=candidate
+                                    manageCandidateListAdapter.modifiedCandidate(index,candidate)
+                                }
+
+                            }
+                            else -> {}
+                        }
+                    }
+                }
+
+
+            }
+
     }
 }

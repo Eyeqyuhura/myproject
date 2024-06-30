@@ -1,22 +1,49 @@
 package com.example.project3
 
+import android.app.Activity
+import android.content.res.Resources
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.project3.databinding.ItemCandidateBinding
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
+import de.hdodenhof.circleimageview.CircleImageView
 
-class ManageCandidateListAdapter():RecyclerView.Adapter<ManageCandidateListAdapter.CandidateListViewHolder>() {
+class ManageCandidateListAdapter(
+    val viewModel: ManageVotingSesionsDetailsViewModel,
+    val context: Activity
+):RecyclerView.Adapter<ManageCandidateListAdapter.CandidateListViewHolder>() {
     var candidateList= mutableListOf<Candidate>()
+    private val firebaseStorage = FirebaseStorage.getInstance().reference
+    private val firestore= FirebaseFirestore.getInstance()
 //    val firestore= FirebaseFirestore.getInstance()
     fun populateArray(mutableList: MutableList<Candidate>){
     candidateList=mutableList
     }
+    fun addCandidate(candidate: Candidate){
+        candidateList.add(candidate)
+        notifyItemInserted(candidateList.size-1)
+    }
+    fun removeCandidate(index:Int){
+        candidateList.removeAt(index)
+        notifyItemRemoved(index)
+    }
+    fun modifiedCandidate(index:Int,candidate: Candidate){
+        candidateList[index]=candidate
+        notifyItemChanged(index)
+    }
 
     class CandidateListViewHolder(val binding:ItemCandidateBinding):RecyclerView.ViewHolder(binding.root){
-        fun bind(name:String,regNo:String){
+        fun bind(name:String,regNo:String,check:Boolean){
             binding.candidateNameTv.setText(name)
             binding.candidateRegNoTv.setText(regNo)
+            binding.checkBox.isChecked=check
         }
+        val checkbox get() = binding.checkBox
+
+        val candidateImage get() = binding.candidateImage
 
     }
 
@@ -32,6 +59,32 @@ class ManageCandidateListAdapter():RecyclerView.Adapter<ManageCandidateListAdapt
 
     override fun onBindViewHolder(holder: CandidateListViewHolder, position: Int) {
         val element=candidateList[position]
-        holder.bind(element.name,element.regNo)
+        val checked= viewModel.checkBoxValueList.value?.get(position)?:false
+        holder.bind(element.name,element.regNo,checked)
+        holder.checkbox.setOnClickListener {
+            if(holder.checkbox.isChecked) {
+                viewModel.checkBoxValueList.value?.set(position, true)
+            }else{
+                viewModel.checkBoxValueList.value?.set(position, false)
+            }
+            notifyItemChanged(position)
+        }
+        if(element.imageName!=""){
+            val fileRef = firebaseStorage.child(element.imageName)
+            fileRef.downloadUrl.addOnSuccessListener{
+                val imageUri=it.toString()
+                showImage(imageUri,holder.candidateImage)
+            }
+
+        }
+//        holder.candidateImage
+    }
+
+    fun showImage(url: String?, imgView: CircleImageView) {
+        if (url != null && url.isEmpty() == false) {
+            val width = Resources.getSystem().displayMetrics.widthPixels
+            Glide.with(context).load(url).override(width * 1 / 2, width * 2 / 3)
+                .centerCrop().into(imgView)
+        }
     }
 }
