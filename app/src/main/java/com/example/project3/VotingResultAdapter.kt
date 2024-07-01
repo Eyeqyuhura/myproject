@@ -1,15 +1,22 @@
 package com.example.project3
 
+import android.content.Context
+import android.content.res.Resources
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.ceylonlabs.imageviewpopup.ImagePopup
 import com.example.project3.databinding.ItemCandidateResultsBinding
-import com.example.project3.databinding.ItemCandidateVoteBinding
+import com.google.firebase.storage.FirebaseStorage
+import de.hdodenhof.circleimageview.CircleImageView
 
-class VotingResultAdapter(): RecyclerView.Adapter<VotingResultAdapter.CandidateListViewHolder>() {
+class VotingResultAdapter(val context: Context): RecyclerView.Adapter<VotingResultAdapter.CandidateListViewHolder>() {
     var candidateList= mutableListOf<Candidate>()
-    //    val firestore= FirebaseFirestore.getInstance()
-    fun populateArray(mutableCandidateList: MutableList<Candidate>,){
+    private val firebaseStorage = FirebaseStorage.getInstance().reference
+    fun populateArray(mutableCandidateList: MutableList<Candidate>){
         candidateList=mutableCandidateList
 
     }
@@ -30,6 +37,8 @@ class VotingResultAdapter(): RecyclerView.Adapter<VotingResultAdapter.CandidateL
 
         }
 
+        val candidateImage get() = binding.candidateImage
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CandidateListViewHolder {
@@ -46,6 +55,37 @@ class VotingResultAdapter(): RecyclerView.Adapter<VotingResultAdapter.CandidateL
         val element=candidateList[position]
         holder.bind(element.name,element.regNo,element.totalVotes)
 
+        if(element.imageName!=""){
+            val fileRef = firebaseStorage.child(element.imageName)
+            fileRef.downloadUrl.addOnSuccessListener{
+                val imageUri=it.toString()
+                showImage(imageUri,holder.candidateImage)
+            }
+        }
 
+        holder.candidateImage.setOnClickListener {
+            popupImage(holder.candidateImage)
+        }
+
+
+    }
+
+    private fun showImage(url: String?, imgView: CircleImageView) {
+        if (url != null && url.isEmpty() == false) {
+            val width = Resources.getSystem().displayMetrics.widthPixels
+            Glide.with(context).load(url).override(width * 1 / 2, width * 2 / 3)
+                .centerCrop().transform(CircleCrop()).into(imgView)
+        }
+    }
+
+    private fun popupImage(imgView: CircleImageView) {
+        val imagePopup = ImagePopup(context)
+        imagePopup.windowHeight = 700 // Optional
+        imagePopup.windowWidth = 700 // Optional
+        imagePopup.backgroundColor = Color.TRANSPARENT // Optional
+        imagePopup.isHideCloseIcon = true // Optional
+        imagePopup.isImageOnClickClose = true // Optional
+        imagePopup.initiatePopup(imgView.drawable) // Load Image from Drawable
+        imagePopup.viewPopup()
     }
 }

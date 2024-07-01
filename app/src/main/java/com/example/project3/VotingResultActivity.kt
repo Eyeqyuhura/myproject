@@ -24,7 +24,7 @@ class VotingResultActivity : AppCompatActivity() {
     private var pieEntryList= arrayListOf<PieEntry>()
     private lateinit var viewModel: VotingResultAdapter
     private val idMap = mutableMapOf<String,Int>()
-    private var candidateListAdapter=VotingResultAdapter()
+    private var candidateListAdapter=VotingResultAdapter(this)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,7 +47,8 @@ class VotingResultActivity : AppCompatActivity() {
                         val name=doc.getString("name") as String
                         val regNo=doc.getString("regNo") ?:""
                         val totalVotes=doc.getDouble("totalVotes") as Double
-                        val candidate=Candidate(name, regNo, id,totalVotes.toInt())
+                        val image=doc.getString("imageName") ?:""
+                        val candidate=Candidate(name, regNo, id,totalVotes.toInt(), imageName = image)
                         tempList.add(candidate)
                         overallVotes+=totalVotes.toFloat()
                     }

@@ -29,7 +29,7 @@ class VotingActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(VotingActivityViewModel::class.java)
         setContentView(binding.root)
         val userRegNo=intent.getSerializableExtra("userId",String::class.java)?:""
-        val candidateListAdapter=VotingCandidateLsAdapter(viewModel)
+        val candidateListAdapter=VotingCandidateLsAdapter(viewModel,this)
         binding.candidateVoteListRv.adapter=candidateListAdapter
         binding.candidateVoteListRv.layoutManager=LinearLayoutManager(this)
 
@@ -43,8 +43,8 @@ class VotingActivity : AppCompatActivity() {
                         val id=doc.getString("id") as String
                         val name=doc.getString("name") as String
                         val regNo=doc.getString("regNo") as String
-                        val candidate=Candidate(name, regNo, id)
-
+                        val image=doc.getString("imageName") ?:""
+                        val candidate=Candidate(name, regNo, id, imageName = image)
                         candidateList.add(candidate)
                         checkBoxValueList.add(false)
                     }
