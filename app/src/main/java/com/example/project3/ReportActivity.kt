@@ -73,11 +73,11 @@ class ReportActivity : AppCompatActivity() {
                     sortedCandidateList = candidateList.sortedByDescending { it.totalVotes }
 
                     winnerName = if(sortedCandidateList.size>1 &&
-                        sortedCandidateList[0].totalVotes==sortedCandidateList[1].totalVotes) ({
+                        sortedCandidateList[0].totalVotes==sortedCandidateList[1].totalVotes) {
                         "No defined winner"
-                    }).toString() else ({
+                    }else {
                         sortedCandidateList[0].name
-                    }).toString()
+                    }
 
 
                     createPDF()
