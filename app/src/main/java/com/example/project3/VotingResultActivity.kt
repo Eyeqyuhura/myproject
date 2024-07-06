@@ -16,7 +16,6 @@ import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
-import com.itextpdf.text.SpecialSymbol.index
 
 
 class VotingResultActivity : AppCompatActivity() {
@@ -43,6 +42,7 @@ class VotingResultActivity : AppCompatActivity() {
         pieChart=binding.pieChat
 
         binding.candidateResultListRv.adapter=candidateListAdapter
+        binding.candidateResultListRv.itemAnimator = CustomAdapterViewAnimator()
         binding.candidateResultListRv.layoutManager= LinearLayoutManager(this)
 
         val mySession=intent.getSerializableExtra("votingSession",VotingSession::class.java)
@@ -69,7 +69,7 @@ class VotingResultActivity : AppCompatActivity() {
                         count+=1
                     }
                     candidateListAdapter.populateArray(candidateList)
-                    candidateListAdapter.notifyDataSetChanged()
+//                    candidateListAdapter.notifyDataSetChanged()
                     var leftOverVotes=overallTotalVotes
                     for(i in 0..2){
 //                        if (candidateList[i].id!="") pieEntryIdMap[candidateList[i].id]=i
@@ -181,7 +181,7 @@ class VotingResultActivity : AppCompatActivity() {
                         pieChart.notifyDataSetChanged(); // Let the chart know about the change
                         pieChart.invalidate(); // Refresh the chart
                         candidateListAdapter.populateArray(candidateList)
-                        candidateListAdapter.notifyDataSetChanged()
+//                        candidateListAdapter.notifyDataSetChanged()
                     }
                 }
 

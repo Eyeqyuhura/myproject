@@ -5,6 +5,7 @@ import android.content.res.Resources
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
@@ -13,11 +14,16 @@ import com.example.project3.databinding.ItemCandidateResultsBinding
 import com.google.firebase.storage.FirebaseStorage
 import de.hdodenhof.circleimageview.CircleImageView
 
+
 class VotingResultAdapter(val context: Context): RecyclerView.Adapter<VotingResultAdapter.CandidateListViewHolder>() {
     var candidateList= mutableListOf<Candidate>()
     private val firebaseStorage = FirebaseStorage.getInstance().reference
     fun populateArray(mutableCandidateList: MutableList<Candidate>){
-        candidateList=mutableCandidateList
+//        candidateList=mutableCandidateList
+        val diffResult = DiffUtil.calculateDiff(VotingResultAdapterDiffUtil(candidateList, mutableCandidateList))
+        candidateList.clear()
+        candidateList.addAll(mutableCandidateList)
+        diffResult.dispatchUpdatesTo(this)
 
     }
 

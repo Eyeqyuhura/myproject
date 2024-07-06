@@ -12,7 +12,7 @@
         android:layout_marginTop="@dimen/card_margin"
         android:layout_marginEnd="@dimen/card_margin"
         android:layout_marginBottom="@dimen/card_margin"
-        android:background="@drawable/card_border">
+        android:background="@drawable/card_border3">
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/candidateImage"

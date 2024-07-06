@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.Material3.FloatingActionButton"
     android:layout_width="match_parent"
-    android:background="@drawable/card_border"
+    android:background="@drawable/card_border3"
     android:layout_margin="@dimen/card_margin"
     android:layout_height="140dp">
 
