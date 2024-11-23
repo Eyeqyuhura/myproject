@@ -46,11 +46,11 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
     private var sessionSetOnCreateFlag=false
     private var level=""
     private var selectedLevel=""
-    private var highLevelValues= arrayListOf<String>("high level","school level","course level")
+    private var highLevelValues= arrayListOf<String>("council","department")
     private val firestore=FirebaseFirestore.getInstance()
     private lateinit var levelSpinner:Spinner
     private lateinit var selectedLevelSpinner:Spinner
-    private var levelValues= ArrayList<String>()
+//    private var levelValues= ArrayList<String>()
     private var courseValues= ArrayList<String>()
     private var candidateList= mutableListOf<Candidate>()
     private lateinit var viewModel: ManageVotingSesionsDetailsViewModel
@@ -61,6 +61,7 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
     private lateinit var startForResult: ActivityResultLauncher<Intent>
     private lateinit var imageUri: Uri
     private var imageName=""
+    private var courseList= ArrayList<Course>()
     private val firebaseStorage = FirebaseStorage.getInstance().reference
     private lateinit var manageCandidateListAdapter:ManageCandidateListAdapter
     private val idMap = mutableMapOf<String,Int>()
@@ -101,7 +102,8 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
                 val dateFormat= SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
                 val date1=dateFormat.parse(startTime)!!
                 val date2=dateFormat.parse(endTime)!!
-                session = VotingSession(sessionTitle,date1,date2,level,selectedLevel)
+                val selectedLevelId=courseList.find { it.courseTitle==selectedLevel }?.id?:""
+                session = VotingSession(sessionTitle,date1,date2,level,selectedLevel,selectedLevelId=selectedLevelId)
                 firestore.collection("VOTINGSESSIONS").add(session).addOnSuccessListener {
                     sessionSetOnCreateFlag=true
                     Toast.makeText(this, "Session added successfully", Toast.LENGTH_SHORT).show()
@@ -221,8 +223,8 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
         selectedLevelSpinner=binding.selectedLevelSpinnerV
         val highLevelAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, highLevelValues)
         highLevelAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
-        val levelAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, levelValues)
-        levelAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
+//        val levelAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, levelValues)
+//        levelAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
         val courseLevelAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, courseValues)
         courseLevelAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item)
         val emptyAdapter = ArrayAdapter(this, R.layout.simple_spinner_item, emptyArray<String>())
@@ -233,21 +235,22 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
         levelSpinner.onItemSelectedListener=object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 level= levelSpinner.selectedItem as String
+                selectedLevel=""
                 when (level) {
-                    "school level" -> {
-                        selectedLevelSpinner.adapter=levelAdapter
-                        if(sessionSetOnCreateFlag){
-                            levelValues.forEachIndexed { index, s ->
-                                if(s==session.selectedLevel){
-                                    selectedLevelSpinner.setSelection(index)
-                                }
-                            }
-                        }
-                    }
-                    "high level" -> {
+//                    "school level" -> {
+//                        selectedLevelSpinner.adapter=levelAdapter
+//                        if(sessionSetOnCreateFlag){
+//                            levelValues.forEachIndexed { index, s ->
+//                                if(s==session.selectedLevel){
+//                                    selectedLevelSpinner.setSelection(index)
+//                                }
+//                            }
+//                        }
+//                    }
+                    "council" -> {
                         selectedLevelSpinner.adapter=emptyAdapter
                     }
-                    "course level" -> {
+                    "department" -> {
                         selectedLevelSpinner.adapter=courseLevelAdapter
                         if(sessionSetOnCreateFlag){
                             courseValues.forEachIndexed { index, s ->
@@ -282,6 +285,9 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
                 for (document in result) {
                     val data = document.data
                     courseValues.add( data["courseTitle"] as String)
+                    val elem=Course(document.id,data["levelId"] as String,data["courseTitle"] as String)
+//                    adapterValues.add(data["courseTitle"] as String)
+                    courseList.add(elem)
                 }
                 if(sessionSetOnCreateFlag) {
                     highLevelValues.forEachIndexed { index, s ->
@@ -297,25 +303,25 @@ class ManageVotingSesionsDetailsActivity : AppCompatActivity() {
                 val TAG="course get error"
                 Log.w(TAG, "Error getting documents.", exception)
             }
-        firestore.collection("levels").get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    val data = document.data
-                    levelValues.add( data["levelTitle"] as String)
-                }
-                if(sessionSetOnCreateFlag) {
-                    highLevelValues.forEachIndexed { index, s ->
-                        if (s == session.level) {
-                            levelSpinner.setSelection(index)
-                        }
-                    }
-                }
-
-            }
-            .addOnFailureListener { exception ->
-                val TAG="level get error"
-                Log.w(TAG, "Error getting documents.", exception)
-            }
+//        firestore.collection("levels").get()
+//            .addOnSuccessListener { result ->
+//                for (document in result) {
+//                    val data = document.data
+//                    levelValues.add( data["levelTitle"] as String)
+//                }
+//                if(sessionSetOnCreateFlag) {
+//                    highLevelValues.forEachIndexed { index, s ->
+//                        if (s == session.level) {
+//                            levelSpinner.setSelection(index)
+//                        }
+//                    }
+//                }
+//
+//            }
+//            .addOnFailureListener { exception ->
+//                val TAG="level get error"
+//                Log.w(TAG, "Error getting documents.", exception)
+//            }
 
 
     }

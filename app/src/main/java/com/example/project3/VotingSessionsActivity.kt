@@ -3,6 +3,7 @@ package com.example.project3
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.project3.databinding.ActivityVotingSession2Binding
@@ -13,15 +14,17 @@ class VotingSessionsActivity : AppCompatActivity() {
     private lateinit var binding: ActivityVotingSession2Binding
     private val firestore= FirebaseFirestore.getInstance()
     private val sessionList= mutableListOf<VotingSession>()
+    private var isDelegate=false
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding= ActivityVotingSession2Binding.inflate(layoutInflater)
         setContentView(binding.root)
         val regNo=intent.getSerializableExtra("userId",String::class.java)?:""
-        val votingSessionsAdapter=VotingSessionsAdapter(this,regNo)
-        binding.sessionListRv2.adapter=votingSessionsAdapter
-        binding.sessionListRv2.layoutManager= LinearLayoutManager(this)
+        val departmentName=intent.getSerializableExtra("departmentName",String::class.java)?:""
+
+
+
         firestore.collection("VOTINGSESSIONS").get().addOnSuccessListener{documents ->
             for(doc in documents){
                 val id=doc.getString("id") as String
@@ -32,11 +35,27 @@ class VotingSessionsActivity : AppCompatActivity() {
                 val selectedLevel=doc.getString("selectedLevel") as String
                 val votingSession=VotingSession(title, startTime,endTime,level,selectedLevel,id)
                 sessionList.add(votingSession)
+                firestore.collection("DELEGATES")
+                    .document(regNo).get().addOnSuccessListener{doc->
+                        var delegate=false
+                        if(doc.exists()){
+                            if(selectedLevel==""){
+                               delegate=true
+                            }
+                        }
+                        val votingSessionsAdapter=VotingSessionsAdapter(this,regNo,departmentName,delegate)
+                        binding.sessionListRv2.adapter=votingSessionsAdapter
+                        binding.sessionListRv2.layoutManager= LinearLayoutManager(this)
+                        votingSessionsAdapter.populateArray(sessionList)
+                        votingSessionsAdapter.notifyDataSetChanged()
+                    }
             }
-            votingSessionsAdapter.populateArray(sessionList)
 
 
-            votingSessionsAdapter.notifyDataSetChanged()
+
+
+
+
 
         }
     }

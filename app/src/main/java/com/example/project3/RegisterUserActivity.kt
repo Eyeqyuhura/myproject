@@ -128,6 +128,15 @@ class RegisterUserActivity : AppCompatActivity() {
                 gender to "gender",regNo to "RegNo",email to "email",
                 password to "password",confirmPassword to "confirm password"))
 
+        val regex = Regex("""[A-Za-z]\d{3}-\d{2}-\d{4}/\d{4}""")
+        val matchResult = regex.matchEntire(regNo)
+        if(matchResult==null){
+            Toast.makeText(this, "check that the registration number is entered correctly", Toast.LENGTH_SHORT)
+                .show()
+            res=false
+        }else{
+            regNo=regNo.replaceFirstChar { it.uppercase() }.replace('/','_')
+        }
         if(password!=confirmPassword){
             Toast.makeText(this, "check that both password and confirm Password are a match", Toast.LENGTH_SHORT)
                 .show()
@@ -137,6 +146,9 @@ class RegisterUserActivity : AppCompatActivity() {
             Toast.makeText(this, "password should contain more than 6 characters", Toast.LENGTH_SHORT)
                 .show()
         }
+        regNo=regNo.replaceFirstChar { it.uppercase() }
+
+
         return res
     }
     private fun inputValidation(input :Map<String,String>):Boolean{

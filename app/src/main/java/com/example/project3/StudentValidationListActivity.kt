@@ -42,8 +42,7 @@ class StudentValidationListActivity : AppCompatActivity() {
             for(doc in documents){
                 val courseId=doc.getString("courseId") as String
                 val schoolId=doc.getString("schoolId") as String
-                if(level=="school manager" && schoolId!=levelId )continue
-                if(level=="course manager" && courseId!=levelId )continue
+//                if(level=="course manager" && courseId!=levelId )continue
                 val id=doc.getString("id") as String
                 val name=doc.getString("name") as String
                 val phoneNo=doc.getString("phoneNo") as String

@@ -196,9 +196,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/space_from_top"
-        android:text="Course"
-        android:textSize="20sp"
         android:paddingHorizontal="15dp"
+        android:text="Department"
+        android:textSize="20sp"
         android:textStyle="bold|italic"
         app:layout_constraintStart_toStartOf="@+id/edtRegNo"
         app:layout_constraintTop_toBottomOf="@+id/edtRegNo" />

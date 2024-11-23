@@ -16,6 +16,7 @@ class HomeActivity: AppCompatActivity()  {
     private lateinit var binding: HomePageBinding
     private val firestore = FirebaseFirestore.getInstance()
     private var validated=""
+    private var departmentName=""
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,6 +27,11 @@ class HomeActivity: AppCompatActivity()  {
             .document(regNo).get().addOnSuccessListener{document ->
                 validated=document.getString("validated") as String
                 val admin= document.getBoolean("admin") as Boolean
+                val departmentId=document.getString("courseId") as String
+                firestore.collection("courses").document(departmentId).get().addOnSuccessListener {
+                    doc ->
+                    departmentName=doc.getString("courseTitle") as String
+                }
                 if(admin){
                     binding.buttonAdmin.visibility= View.VISIBLE
                 }
@@ -46,6 +52,7 @@ class HomeActivity: AppCompatActivity()  {
                     }
                 }
             }
+
         binding.buttonAdmin.setOnClickListener {
             when (validated) {
                 "pending" -> {
@@ -66,6 +73,7 @@ class HomeActivity: AppCompatActivity()  {
                 }else -> {
                     val intent = Intent(this, VotingSessionsActivity::class.java)
                     intent.putExtra("userId",regNo)
+                    intent.putExtra("departmentName",departmentName)
                     startActivity(intent)
                 }
             }

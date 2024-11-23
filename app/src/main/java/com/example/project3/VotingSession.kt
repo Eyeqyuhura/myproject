@@ -6,4 +6,4 @@ import java.util.Date
 
 data class VotingSession(
     var title:String, var startTime: Date, var endTime: Date, var level:String, var selectedLevel:String,
-    var id:String=""): Serializable
+    var id:String="",var selectedLevelId:String=""): Serializable

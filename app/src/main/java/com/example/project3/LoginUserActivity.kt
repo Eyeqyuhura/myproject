@@ -34,6 +34,7 @@ class LoginUserActivity : AppCompatActivity(){
                 mapOf(
                     email to "email",password to "password",
                     regNo to "regNo"))
+
             if(res){
             firebaseAuth.signInWithEmailAndPassword(email,password).addOnSuccessListener {
                 firestore.collection("USERS")
@@ -74,6 +75,17 @@ class LoginUserActivity : AppCompatActivity(){
                 Toast.makeText(this, "$label Should not be Empty", Toast.LENGTH_SHORT)
                     .show()
                 return false
+            }
+            if(label=="regNo"){
+                val regex = Regex("""[A-Za-z]\d{3}-\d{2}-\d{4}/\d{4}""")
+                val matchResult = regex.matchEntire(elem)
+                if(matchResult==null){
+                    Toast.makeText(this, "check that the registration number is entered correctly", Toast.LENGTH_SHORT)
+                        .show()
+                    return false
+                }else{
+                    regNo=regNo.replaceFirstChar { it.uppercase() }.replace('/','_')
+                }
             }
         }
         return true

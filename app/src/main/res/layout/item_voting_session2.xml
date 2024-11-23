@@ -71,6 +71,8 @@
             android:layout_marginEnd="30dp"
             android:background="@drawable/buttonbackground2"
             android:text="vote"
+            tools:visibility="visible"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/toResultBtn" />
 

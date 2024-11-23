@@ -20,10 +20,10 @@ class ManageVotingSessionAdapter (private val context:Context):RecyclerView.Adap
     class VotingSessionViewHolder(val binding:ItemVotingSessionBinding):RecyclerView.ViewHolder(binding.root){
         fun bind(title:String, level:String, selectedLevel:String, start: Date,end:Date){
             binding.sessionTitleTv.text=title
-            if (level != "high level") {
+            if (level != "council") {
                 binding.sessionLevelTv.text=selectedLevel
             } else {
-                binding.sessionLevelTv.text="institutional"
+                binding.sessionLevelTv.text="council"
             }
             val dateFormat= SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
             val startDate=dateFormat.format(start)

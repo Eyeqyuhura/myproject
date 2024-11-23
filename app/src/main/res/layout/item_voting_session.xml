@@ -28,19 +28,19 @@
         android:paddingHorizontal="20dp"
         >
 
-    <TextView
-        android:id="@+id/sessionTitleTv"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:textStyle="bold|italic"
-        android:textColor="@color/black"
-        android:textAllCaps="true"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="30dp"
-        android:text="Title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/sessionTitleTv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:text="Title"
+            android:textAllCaps="true"
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold|italic"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/sessionLevelTv"
@@ -48,8 +48,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Level"
-            android:textSize="15sp"
-            android:textStyle="bold|italic"
+            android:textSize="20sp"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/sessionTitleTv"
             app:layout_constraintTop_toBottomOf="@+id/sessionTitleTv" />

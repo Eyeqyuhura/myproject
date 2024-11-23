@@ -21,9 +21,9 @@ class AddAdminActivity : AppCompatActivity() {
     private var selectedLevelId=""
     private lateinit var levelSpinner: Spinner
     private lateinit var selectedLevelSpinner: Spinner
-    private var highLevelValues= arrayListOf<String>("high manager","school manager","course manager")
-    private var levelValues= ArrayList<String>()
-    private var levelValuesId= ArrayList<String>()
+    private var highLevelValues= arrayListOf<String>("high manager","department manager")
+//    private var levelValues= ArrayList<String>()
+//    private var levelValuesId= ArrayList<String>()
     private var courseValues= ArrayList<String>()
     private var courseValuesId= ArrayList<String>()
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -72,8 +72,8 @@ class AddAdminActivity : AppCompatActivity() {
         selectedLevelSpinner=binding.selectionLevelSpinner
         val highLevelAdapter =ArrayAdapter(this, android.R.layout.simple_spinner_item, highLevelValues)
         highLevelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        val levelAdapter =ArrayAdapter(this, android.R.layout.simple_spinner_item, levelValues)
-        levelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        val levelAdapter =ArrayAdapter(this, android.R.layout.simple_spinner_item, levelValues)
+//        levelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         val courseLevelAdapter =ArrayAdapter(this, android.R.layout.simple_spinner_item, courseValues)
         courseLevelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         val emptyAdapter =ArrayAdapter(this, android.R.layout.simple_spinner_item, emptyArray<String>())
@@ -94,32 +94,32 @@ class AddAdminActivity : AppCompatActivity() {
                 val TAG="course get error"
                 Log.w(TAG, "Error getting documents.", exception)
             }
-        firestore.collection("levels").get()
-            .addOnSuccessListener { result ->
-                for (document in result) {
-                    val data = document.data
-                    levelValues.add( data["levelTitle"] as String)
-                    levelValuesId.add(document.id)
-                }
-            }
-            .addOnFailureListener { exception ->
-                val TAG="level get error"
-                Log.w(TAG, "Error getting documents.", exception)
-            }
+//        firestore.collection("levels").get()
+//            .addOnSuccessListener { result ->
+//                for (document in result) {
+//                    val data = document.data
+//                    levelValues.add( data["levelTitle"] as String)
+//                    levelValuesId.add(document.id)
+//                }
+//            }
+//            .addOnFailureListener { exception ->
+//                val TAG="level get error"
+//                Log.w(TAG, "Error getting documents.", exception)
+//            }
         levelSpinner.onItemSelectedListener=object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 level= levelSpinner.selectedItem as String
                 when (level) {
-                    "school manager" -> {
-                        selectedLevelSpinner.adapter=levelAdapter
-                        selectedLevelType="school"
-                    }
+//                    "school manager" -> {
+//                        selectedLevelSpinner.adapter=levelAdapter
+//                        selectedLevelType="school"
+//                    }
                     "high manager" -> {
                         selectedLevelSpinner.adapter=emptyAdapter
                     }
                     else -> {
                         selectedLevelSpinner.adapter=courseLevelAdapter
-                        selectedLevelType="course"
+                        selectedLevelType="department"
                     }
                 }
                 // Do something with the selected item
@@ -135,10 +135,10 @@ class AddAdminActivity : AppCompatActivity() {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 selectedLevel= selectedLevelSpinner.selectedItem as String
                 when(selectedLevelType){
-                    "school"->{
-                        selectedLevelId=levelValuesId[levelValues.indexOf(selectedLevel)]
-                    }
-                    "course"->{
+//                    "school"->{
+//                        selectedLevelId=levelValuesId[levelValues.indexOf(selectedLevel)]
+//                    }
+                    "department"->{
                         selectedLevelId=courseValuesId[courseValues.indexOf(selectedLevel)]
                     }
                 }
