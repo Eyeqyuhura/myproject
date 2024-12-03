@@ -65,6 +65,21 @@ class HomeActivity: AppCompatActivity()  {
                 }
         }
         }
+
+        binding.candidateRegistration.setOnClickListener{
+            when (validated) {
+                "pending" -> {
+                    Toast.makeText(this, "Await verification to continue", Toast.LENGTH_SHORT)
+                        .show()
+                }else -> {
+                val intent = Intent(this, CandidateRegistrationActivity::class.java)
+                intent.putExtra("userId",regNo)
+                intent.putExtra("departmentName",departmentName)
+                startActivity(intent)
+            }
+            }
+        }
+
         binding.votingSessionBtn.setOnClickListener {
             when (validated) {
                 "pending" -> {

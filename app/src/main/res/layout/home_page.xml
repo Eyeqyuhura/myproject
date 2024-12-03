@@ -41,13 +41,27 @@
         android:id="@+id/votingSessionBtn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
-        android:text="Voting sessions"
+        android:layout_marginTop="136dp"
         android:background="@drawable/buttonbackground2"
+        android:text="Voting sessions"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonAdmin" />
+
+    <Button
+        android:id="@+id/candidateRegistration"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        android:background="@drawable/buttonbackground2"
+        android:text="Candidate Registration"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonAdmin"
+        tools:visibility="visible" />
 
     <TextView
         android:id="@+id/pendingStatusTV"
